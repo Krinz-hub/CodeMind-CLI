@@ -1,0 +1,19 @@
+{"timestamp": "2026-11-14T09:16:04.148951+00:00", "event_type": "turn_start", "data": {"turn": 1, "tool_calls": 0}}
+{"timestamp": "2026-11-14T09:16:04.149071+00:00", "event_type": "model_request", "data": {"turn": 1}}
+{"timestamp": "2026-11-14T09:16:07.849111+00:00", "event_type": "model_response", "data": {"raw_content": "{\"protocol_version\": \"1\", \"type\": \"tool_call\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"pyproject.toml\"}}"}}
+{"timestamp": "2026-11-14T09:16:07.849391+00:00", "event_type": "tool_start", "data": {"tool": "read_file", "arguments": {"path": "pyproject.toml"}, "reason": ""}}
+{"timestamp": "2026-11-14T09:16:07.849675+00:00", "event_type": "tool_end", "data": {"tool": "read_file", "ok": true, "exit_code": null}}
+{"timestamp": "2026-11-14T09:16:07.849726+00:00", "event_type": "turn_start", "data": {"turn": 2, "tool_calls": 1}}
+{"timestamp": "2026-11-14T09:16:07.849749+00:00", "event_type": "model_request", "data": {"turn": 2}}
+{"timestamp": "2026-11-14T09:16:09.921942+00:00", "event_type": "model_response", "data": {"raw_content": "{\"protocol_version\": \"1\", \"type\": \"tool_call\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"src/calculator.py\"}}"}}
+{"timestamp": "2026-11-14T09:16:09.922116+00:00", "event_type": "tool_start", "data": {"tool": "read_file", "arguments": {"path": "src/calculator.py"}, "reason": ""}}
+{"timestamp": "2026-11-14T09:16:09.922391+00:00", "event_type": "tool_end", "data": {"tool": "read_file", "ok": true, "exit_code": null}}
+{"timestamp": "2026-11-14T09:16:09.922442+00:00", "event_type": "turn_start", "data": {"turn": 3, "tool_calls": 2}}
+{"timestamp": "2026-11-14T09:16:09.922464+00:00", "event_type": "model_request", "data": {"turn": 3}}
+{"timestamp": "2026-11-14T09:16:11.161288+00:00", "event_type": "model_response", "data": {"raw_content": "{\"protocol_version\": \"1\", \"type\": \"tool_call\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"tests/test_calculator.py\"}}"}}
+{"timestamp": "2026-11-14T09:16:11.161449+00:00", "event_type": "tool_start", "data": {"tool": "read_file", "arguments": {"path": "tests/test_calculator.py"}, "reason": ""}}
+{"timestamp": "2026-11-14T09:16:11.161736+00:00", "event_type": "tool_end", "data": {"tool": "read_file", "ok": true, "exit_code": null}}
+{"timestamp": "2026-11-14T09:16:11.161785+00:00", "event_type": "turn_start", "data": {"turn": 4, "tool_calls": 3}}
+{"timestamp": "2026-11-14T09:16:11.161807+00:00", "event_type": "model_request", "data": {"turn": 4}}
+{"timestamp": "2026-11-14T09:16:17.332474+00:00", "event_type": "model_response", "data": {"raw_content": "{\"protocol_version\": \"1\", \"type\": \"final\", \"content\": \"This is a minimal Python project named **sample-calculator** (version 0.1.0). Here is the breakdown of its structure:\\n\\n### 1. Configuration (`pyproject.toml`)\\n*   Defines the project metadata and dependencies.\\n*   Uses **setuptools** as the build backend.\\n*   Requires Python version **>=3.10**.\\n\\n### 2. Source Code (`src/`)\\n*   **`calculator.py`**: Contains four basic arithmetic functions:\\n    *   `add(a, b)`\\n    *   `subtract(a, b)"}}
+{"timestamp": "2026-11-14T09:16:17.332710+00:00", "event_type": "task_completed", "data": {"summary": ["Read pyproject.toml", "Read src/calculator.py", "Read tests/test_calculator.py"], "content": "This is a minimal Python project named **sample-calculator** (version 0.1.0). Here is the breakdown of its structure:\n\n### 1. Configuration (`pyproject.toml`)\n*   Defines the project metadata and dependencies.\n*   Uses **setuptools** as the build backend.\n*   Requires Python version **>=3.10**.\n\n### 2. Source Code (`src/`)\n*   **`calculator.py`**: Contains four basic arithmetic functions:\n    *   `add(a, b)`\n    *   `subtract(a, b)`\n    *   `multiply(a, b)`\n    *   `divide(a, b)` (includes error"}}

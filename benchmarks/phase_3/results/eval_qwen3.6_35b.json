@@ -1,0 +1,149 @@
+[
+  {
+    "scenario_id": "Test_A_Project_Understanding",
+    "model_name": "qwen3.6:35b",
+    "provider": "ollama",
+    "success": true,
+    "duration_seconds": 26.55,
+    "turns_count": 6,
+    "tool_calls_count": 5,
+    "valid_tool_calls": 5,
+    "invalid_tool_calls": 0,
+    "files_created": [],
+    "files_modified": [],
+    "test_suite_passed": true,
+    "test_output": "",
+    "failure_category": null,
+    "notes": "Identified TaskManager: True, Pyproject: True, No modifications: True",
+    "final_summary": [
+      "Inspected README.md",
+      "Analyzed pyproject.toml configuration",
+      "Reviewed src/task_manager.py architecture",
+      "Examined tests/test_task_manager.py"
+    ],
+    "trace_events_count": 0
+  },
+  {
+    "scenario_id": "Test_B_Multi_File_Feature_Dev",
+    "model_name": "qwen3.6:35b",
+    "provider": "ollama",
+    "success": true,
+    "duration_seconds": 126.92,
+    "turns_count": 11,
+    "tool_calls_count": 5,
+    "valid_tool_calls": 5,
+    "invalid_tool_calls": 0,
+    "files_created": [],
+    "files_modified": [
+      "src/models.py",
+      "src/service.py"
+    ],
+    "test_suite_passed": true,
+    "test_output": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK",
+    "failure_category": null,
+    "notes": "Modified files: ['src/models.py', 'src/service.py']. Tests passed: True",
+    "final_summary": [],
+    "trace_events_count": 0
+  },
+  {
+    "scenario_id": "Test_C_Bug_Diagnosis_And_Repair",
+    "model_name": "qwen3.6:35b",
+    "provider": "ollama",
+    "success": true,
+    "duration_seconds": 50.32,
+    "turns_count": 9,
+    "tool_calls_count": 4,
+    "valid_tool_calls": 4,
+    "invalid_tool_calls": 0,
+    "files_created": [],
+    "files_modified": [
+      "src/auth.py"
+    ],
+    "test_suite_passed": true,
+    "test_output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK",
+    "failure_category": null,
+    "notes": "Tests passed after fix: True",
+    "final_summary": [
+      "Inspected source and test files",
+      "Diagnosed inverted logic and missing default defects",
+      "Applied fixes to src/auth.py",
+      "Verified all tests pass"
+    ],
+    "trace_events_count": 0
+  },
+  {
+    "scenario_id": "Test_D_Test_Execution_And_Repair_Loop",
+    "model_name": "qwen3.6:35b",
+    "provider": "ollama",
+    "success": true,
+    "duration_seconds": 67.14,
+    "turns_count": 11,
+    "tool_calls_count": 6,
+    "valid_tool_calls": 6,
+    "invalid_tool_calls": 0,
+    "files_created": [],
+    "files_modified": [
+      "src/auth.py"
+    ],
+    "test_suite_passed": true,
+    "test_output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK",
+    "failure_category": null,
+    "notes": "Test loop verified: True",
+    "final_summary": [
+      "Fixed is_token_valid comparison logic",
+      "Fixed extract_user_role to handle missing role",
+      "Verified all 3 tests pass"
+    ],
+    "trace_events_count": 0
+  },
+  {
+    "scenario_id": "Test_E_Autonomous_Workflow",
+    "model_name": "qwen3.6:35b",
+    "provider": "ollama",
+    "success": true,
+    "duration_seconds": 92.06,
+    "turns_count": 8,
+    "tool_calls_count": 5,
+    "valid_tool_calls": 5,
+    "invalid_tool_calls": 0,
+    "files_created": [],
+    "files_modified": [
+      "src/task_manager.py",
+      "tests/test_task_manager.py"
+    ],
+    "test_suite_passed": true,
+    "test_output": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK",
+    "failure_category": null,
+    "notes": "Autonomous workflow completed: True",
+    "final_summary": [
+      "Added archive_completed_tasks method",
+      "Added test_archive_completed_tasks",
+      "Ran test suite (4/4 passed)"
+    ],
+    "trace_events_count": 0
+  },
+  {
+    "scenario_id": "Test_F_Session_Recovery",
+    "model_name": "qwen3.6:35b",
+    "provider": "ollama",
+    "success": true,
+    "duration_seconds": 99.12,
+    "turns_count": 14,
+    "tool_calls_count": 9,
+    "valid_tool_calls": 9,
+    "invalid_tool_calls": 0,
+    "files_created": [
+      "src/task_manager.py",
+      "tests/test_task_manager.py"
+    ],
+    "files_modified": [],
+    "test_suite_passed": true,
+    "test_output": "",
+    "failure_category": null,
+    "notes": "Recovery state rehydrated: True, Continued successfully: True",
+    "final_summary": [
+      "Verified task count in fresh TaskManager"
+    ],
+    "trace_events_count": 0
+  }
+]
