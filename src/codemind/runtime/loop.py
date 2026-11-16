@@ -11,6 +11,7 @@ import json
 from typing import Any, Callable
 
 from codemind.cli.ui import TerminalUI
+from codemind.context.compactor import ContextCompactor
 from codemind.models.base import ChatMessage, ModelAdapter, ModelError
 from codemind.models.protocol import (
     ActionType,
@@ -42,6 +43,7 @@ class AgentLoop:
         max_tool_calls: int = 30,
         ui: TerminalUI | None = None,
         event_listener: EventListener | None = None,
+        compactor: ContextCompactor | None = None,
     ):
         self.model = model_adapter
         self.tools = tool_registry
@@ -52,6 +54,9 @@ class AgentLoop:
         self.ui = ui
         self.event_listener = event_listener
         self._cancelled = False
+        self.compactor = compactor or ContextCompactor(
+            threshold_chars=min(40000, max(8000, getattr(self.model.capability_profile, "context_window", 32768) * 3))
+        )
 
     def cancel(self) -> None:
         """Signal the loop to stop immediately on next yield."""
@@ -102,6 +107,19 @@ class AgentLoop:
                     {"reason": "tool_limit", "total_tool_calls": state.total_tool_calls},
                 )
                 break
+
+            # Check context compaction
+            if self.compactor.needs_compaction(state.messages):
+                comp_res = self.compactor.compact(
+                    messages=state.messages,
+                    task_plan=state.plan,
+                )
+                if comp_res.was_compacted:
+                    state.messages = comp_res.messages
+                    if self.ui:
+                        self.ui.print_info(
+                            f"Context compacted to conserve model window (saved {comp_res.saved_chars} characters)."
+                        )
 
             # 1. Model generation
             self._emit(AgentEventType.MODEL_REQUEST, state.session_id, {"turn": state.turn_count})
@@ -240,8 +258,13 @@ class AgentLoop:
 
             elif isinstance(action, MalformedAction):
                 consecutive_malformed += 1
+                # Invariant: Protocol repair attempts use a dedicated retry sub-budget
+                # and do NOT burn through the user's primary execution turn budget.
+                state.turn_count = max(0, state.turn_count - 1)
                 if self.ui:
-                    self.ui.print_error(f"Malformed model response ({action.validation_error})")
+                    self.ui.print_error(
+                        f"Malformed model response ({action.validation_error}) [Repair attempt {consecutive_malformed}/{max_malformed_retries}]"
+                    )
 
                 if consecutive_malformed >= max_malformed_retries:
                     abort_msg = (
@@ -251,6 +274,7 @@ class AgentLoop:
                     state.final_content = abort_msg
                     state.is_complete = False
                     state.status = "failed"
+                    state.is_paused = False
                     self._pause_running_tasks(state, f"Malformed envelope failure: {action.validation_error}")
                     break
 

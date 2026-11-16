@@ -12,7 +12,12 @@ REDACTION_PATTERNS = [
     (re.compile(r"(password\s*[:=]\s*['\"]?)[^\s'\"]{6,}['\"]?", re.IGNORECASE), r"\1[REDACTED_PASSWORD]"),
     (re.compile(r"(secret\s*[:=]\s*['\"]?)[^\s'\"]{8,}['\"]?", re.IGNORECASE), r"\1[REDACTED_SECRET]"),
     # OpenAI & typical sk- keys
-    (re.compile(r"sk-[a-zA-Z0-9]{20,}", re.IGNORECASE), "[REDACTED_OPENAI_KEY]"),
+    (re.compile(r"sk-[a-zA-Z0-9_\-]{20,}", re.IGNORECASE), "[REDACTED_OPENAI_KEY]"),
+    # Google OAuth & Refresh tokens
+    (re.compile(r"ya29\.[a-zA-Z0-9_\-\.]{15,}"), "[REDACTED_GOOGLE_TOKEN]"),
+    (re.compile(r"1//[a-zA-Z0-9_\-]{25,}"), "[REDACTED_GOOGLE_REFRESH_TOKEN]"),
+    # Discord Bot Tokens
+    (re.compile(r"[MN][A-Za-z\d]{23,25}\.[\w-]{6}\.[\w-]{20,}"), "[REDACTED_DISCORD_TOKEN]"),
     # GitHub Tokens
     (re.compile(r"gh[pousr]_[a-zA-Z0-9]{36,}", re.IGNORECASE), "[REDACTED_GITHUB_TOKEN]"),
     # AWS Keys

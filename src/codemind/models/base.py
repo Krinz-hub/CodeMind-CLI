@@ -3,17 +3,30 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Any, AsyncIterator
 
 from pydantic import BaseModel, Field
 
 
+class CapabilityState(str, Enum):
+    SUPPORTED = "supported"
+    UNSUPPORTED = "unsupported"
+    UNKNOWN = "unknown"
+
+
 class ModelCapabilityProfile(BaseModel):
     supports_streaming: bool = True
     supports_structured_output: bool = True
+    supports_json_schema: bool = True
+    supports_tool_calling: bool = False
     supports_system_messages: bool = True
+    supports_cancellation: bool = True
+    supports_usage_reporting: bool = True
     context_window: int = 32768
     supports_multiple_tool_calls: bool = False
+    is_mock: bool = False
+    is_local: bool = True
 
 
 class HealthStatus(BaseModel):

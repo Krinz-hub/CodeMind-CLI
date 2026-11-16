@@ -88,8 +88,15 @@ class ProtocolParser:
                 ),
             )
 
-        # 2. Check protocol version
+        # 2. Check protocol version and normalize missing version if action type is recognizable
         version = str(json_obj.get("protocol_version", ""))
+        action_type = json_obj.get("type") or json_obj.get("action")
+
+        # If protocol_version is omitted but type is a recognized action, normalize protocol_version to '1'
+        if not version and action_type in (ActionType.TOOL_CALL.value, ActionType.PLAN.value, ActionType.FINAL.value, "tool"):
+            version = CURRENT_PROTOCOL_VERSION
+            json_obj["protocol_version"] = CURRENT_PROTOCOL_VERSION
+
         if version != CURRENT_PROTOCOL_VERSION:
             return MalformedAction(
                 raw_content=cleaned,
@@ -97,7 +104,13 @@ class ProtocolParser:
                 correction_prompt=f"Please use 'protocol_version': '{CURRENT_PROTOCOL_VERSION}'.",
             )
 
-        action_type = json_obj.get("type")
+        # Normalize alternative 'action' key to 'type'
+        if action_type == "tool":
+            action_type = ActionType.TOOL_CALL.value
+            json_obj["type"] = action_type
+        elif action_type and "type" not in json_obj:
+            json_obj["type"] = action_type
+
         try:
             if action_type == ActionType.TOOL_CALL.value:
                 return ToolCallAction.model_validate(json_obj)
@@ -120,20 +133,33 @@ class ProtocolParser:
 
     @staticmethod
     def _extract_json(text: str) -> dict[str, Any] | None:
-        """Extract valid JSON envelope object, supporting code blocks and stripping thinking tags."""
+        """Extract valid JSON envelope object, supporting code blocks, trailing commas, and stripping thinking tags."""
         # Strip <think>...</think> blocks from reasoning models
         cleaned = re.sub(r"<think>[\s\S]*?</think>", "", text).strip()
         if not cleaned:
             cleaned = text.strip()
 
+        def _safe_load(candidate_str: str) -> dict[str, Any] | None:
+            try:
+                res = json.loads(candidate_str)
+                if isinstance(res, dict):
+                    return res
+            except json.JSONDecodeError:
+                # Strip trailing commas e.g. {"a": 1,}
+                no_trailing = re.sub(r",\s*([\]}])", r"\1", candidate_str)
+                try:
+                    res = json.loads(no_trailing)
+                    if isinstance(res, dict):
+                        return res
+                except json.JSONDecodeError:
+                    pass
+            return None
+
         # Check for ```json ... ``` fenced blocks
         for match in re.finditer(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", cleaned):
-            try:
-                candidate = json.loads(match.group(1))
-                if isinstance(candidate, dict) and ("protocol_version" in candidate or "type" in candidate):
-                    return candidate
-            except json.JSONDecodeError:
-                continue
+            candidate = _safe_load(match.group(1))
+            if candidate is not None:
+                return candidate
 
         # Look for JSON substrings by scanning balanced curly braces
         start_indices = [m.start() for m in re.finditer(r"\{", cleaned)]
@@ -146,20 +172,14 @@ class ProtocolParser:
                     brace_count -= 1
                     if brace_count == 0:
                         candidate_str = cleaned[s_idx : i + 1]
-                        try:
-                            candidate = json.loads(candidate_str)
-                            if isinstance(candidate, dict) and ("protocol_version" in candidate or "type" in candidate):
-                                return candidate
-                        except json.JSONDecodeError:
-                            pass
+                        candidate = _safe_load(candidate_str)
+                        if candidate is not None:
+                            return candidate
                         break
 
         # Fallback to direct parse of cleaned string
-        try:
-            candidate = json.loads(cleaned)
-            if isinstance(candidate, dict):
-                return candidate
-        except json.JSONDecodeError:
-            pass
+        candidate = _safe_load(cleaned)
+        if candidate is not None:
+            return candidate
 
         return None

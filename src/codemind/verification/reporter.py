@@ -34,6 +34,7 @@ class HonestCompletionReport(BaseModel):
     files_modified: list[str] = Field(default_factory=list)
     commands_executed: list[str] = Field(default_factory=list)
     checks: list[TestCheckResult] = Field(default_factory=list)
+    system_checks: list[TestCheckResult] = Field(default_factory=list)
     task_completed: bool = True
     is_paused: bool = False
     is_cancelled: bool = False
@@ -70,7 +71,7 @@ class HonestCompletionReport(BaseModel):
                 self.verified = False
                 return f"{CompletionStatus.FAILED.value} (Missing expected files: {', '.join(missing)})", False
 
-        # Verify test checks if any executed
+        # Verify test checks if any executed for this task
         if self.checks:
             failed_checks = [c for c in self.checks if not c.passed]
             if failed_checks:
@@ -79,6 +80,23 @@ class HonestCompletionReport(BaseModel):
             else:
                 self.verified = True
                 return CompletionStatus.VERIFIED_SUCCESS.value, True
+
+        # Check if only system health checks were executed
+        if self.system_checks:
+            failed_sys = [c for c in self.system_checks if not c.passed]
+            if failed_sys:
+                self.verified = False
+                return f"{CompletionStatus.FAILED.value} (System health check failed)", False
+            else:
+                # System checks passed, but user deliverable has mutations and no task-specific checks
+                has_modifications = bool(self.files_created or self.files_modified)
+                if has_modifications:
+                    self.verified = False
+                    if not any("CodeMind internal test suite" in n for n in self.unverified_notes):
+                        self.unverified_notes.append(
+                            "CodeMind internal test suite passed, but no automated test suite was discovered or executed for this specific user task deliverable."
+                        )
+                    return CompletionStatus.COMPLETED_UNVERIFIED.value, False
 
         # No test checks were executed
         has_modifications = bool(self.files_created or self.files_modified)
@@ -118,13 +136,19 @@ class HonestCompletionReport(BaseModel):
                 lines.append(f"  ! {m} (not found on disk)")
 
         if self.checks:
-            lines.append("\nVerification Checks Executed:")
+            lines.append("\nVerification Checks Executed (Task):")
             for c in self.checks:
                 status_str = "PASSED" if c.passed else f"FAILED (exit code {c.exit_code})"
                 counts = f" [{c.passed_count} passed, {c.failed_count} failed]" if (c.passed_count or c.failed_count) else ""
                 lines.append(f"  [{status_str}] {c.command}{counts}")
         else:
-            lines.append("\nVerification Checks: None executed")
+            lines.append("\nVerification Checks (Task): None executed")
+
+        if self.system_checks:
+            lines.append("\nSystem Health Checks Executed:")
+            for sc in self.system_checks:
+                status_str = "PASSED" if sc.passed else f"FAILED (exit code {sc.exit_code})"
+                lines.append(f"  [{status_str}] {sc.command}")
 
         lines.append(f"\nFinal Verified Status: {status_label}")
 

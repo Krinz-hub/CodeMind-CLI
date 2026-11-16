@@ -29,8 +29,41 @@ class VerificationRunner:
         self.workspace_root = workspace_root.resolve()
         self.sandbox = sandbox
 
-    def discover_test_command(self) -> str | None:
-        """Heuristically identify the primary test runner command for this repository."""
+    def discover_test_command(self, changed_files: list[str] | None = None) -> str | None:
+        """Heuristically identify the primary test runner command for this repository or target deliverable."""
+        # Check if changed_files are targeting a specific sub-project directory
+        if changed_files:
+            subdirs: set[Path] = set()
+            for f in changed_files:
+                p = Path(f)
+                full = p if p.is_absolute() else (self.workspace_root / p)
+                parent = full.parent
+                while parent != self.workspace_root and parent != parent.parent:
+                    subdirs.add(parent)
+                    parent = parent.parent
+
+            # Look for subproject test runners first
+            for sdir in sorted(subdirs, key=lambda d: len(str(d)), reverse=True):
+                rel_dir = sdir.relative_to(self.workspace_root)
+                if (sdir / "package.json").is_file():
+                    return f"cd {rel_dir} && npm test"
+                if (sdir / "pyproject.toml").is_file() or (sdir / "setup.py").is_file():
+                    return f"cd {rel_dir} && python3 -m unittest discover"
+                if (sdir / "Cargo.toml").is_file():
+                    return f"cd {rel_dir} && cargo test"
+
+            # Invariant: If we are in CodeMind's own repository, do NOT run CodeMind's internal test suite
+            # unless the changed files actually touch CodeMind's source or test directories.
+            is_codemind_repo = (self.workspace_root / "src" / "codemind").is_dir()
+            if is_codemind_repo:
+                touches_codemind = any(
+                    "src/codemind" in str(f) or "tests/" in str(f) or str(f).endswith("run_tests.py")
+                    for f in changed_files
+                )
+                if not touches_codemind:
+                    # User deliverables outside CodeMind's source do not have an automated test suite
+                    return None
+
         # 1. Custom runner in repository root
         if (self.workspace_root / "run_tests.py").is_file():
             return "python3 run_tests.py"

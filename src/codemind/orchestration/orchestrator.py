@@ -290,14 +290,23 @@ class WorkflowOrchestrator:
             self._save_checkpoint(instruction, is_completed=self.plan.is_all_completed())
 
         # 5. Final verification & report assembly
+        is_all_completed = self.plan.is_all_completed()
+        is_paused = (self.total_turns_used >= self.budget.max_turns) and not is_all_completed
+        is_cancelled = self._is_cancelled
+
         report = HonestCompletionReport(
+            task_instruction=instruction,
             files_created=list(set(self.files_created)),
             files_modified=list(set(self.files_modified)),
+            task_completed=is_all_completed,
+            is_paused=is_paused,
+            is_cancelled=is_cancelled,
         )
 
-        # Run project-level automated test verification if files were modified
-        if (self.files_created or self.files_modified) and self.config.runtime.auto_verify:
-            test_cmd = self.verification.discover_test_command()
+        # Run project-level automated test verification if files were modified and task completed cleanly
+        if (self.files_created or self.files_modified) and is_all_completed and not is_paused and self.config.runtime.auto_verify:
+            changed_files = list(set(self.files_created + self.files_modified))
+            test_cmd = self.verification.discover_test_command(changed_files=changed_files)
             if test_cmd:
                 self.ui.print_info(f"Running automated project verification: '{test_cmd}'...")
                 check_result = await self.verification.run_check(test_cmd)
@@ -308,6 +317,9 @@ class WorkflowOrchestrator:
                 report.verified = False
         elif not self.files_created and not self.files_modified:
             report.verified = True  # Read-only task
+        elif is_paused:
+            report.unverified_notes.append("Task paused before full completion; verification withheld.")
+            report.verified = False
 
         # Determine completion status
         completion_status = self._determine_completion_status(report)

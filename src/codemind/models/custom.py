@@ -152,9 +152,15 @@ class CodeMindCustomAdapter(ModelAdapter):
         self._capabilities = ModelCapabilityProfile(
             supports_streaming=True,
             supports_structured_output=True,
+            supports_json_schema=True,
+            supports_tool_calling=False,
             supports_system_messages=True,
+            supports_cancellation=True,
+            supports_usage_reporting=True,
             context_window=self.context_window,
             supports_multiple_tool_calls=False,
+            is_mock=False,
+            is_local=True,
         )
 
     @property

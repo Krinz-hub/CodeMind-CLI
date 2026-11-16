@@ -9,7 +9,7 @@ from codemind.security.permissions import PermissionDecision
 from codemind.security.redaction import redact_secrets
 from codemind.tools.base import BaseTool, ExecutionContext, ToolResult
 from codemind.tools.filesystem import CreateFileTool, ListDirectoryTool, ReadFileTool, WriteFileTool
-from codemind.tools.git import GitDiffTool, GitStatusTool
+from codemind.tools.git import GitBranchTool, GitCommitTool, GitDiffTool, GitLogTool, GitStatusTool
 from codemind.tools.patch import ApplyPatchTool
 from codemind.tools.search import SearchFilesTool, SearchTextTool
 from codemind.tools.terminal import RunCommandTool
@@ -44,6 +44,9 @@ class ToolRegistry:
         self.register(RunCommandTool())
         self.register(GitStatusTool())
         self.register(GitDiffTool())
+        self.register(GitBranchTool())
+        self.register(GitCommitTool())
+        self.register(GitLogTool())
 
     def get_prompt_definitions(self) -> str:
         """Generate formatted documentation of tools and their JSON schemas for the system prompt."""

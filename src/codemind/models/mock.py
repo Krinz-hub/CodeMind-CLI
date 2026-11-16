@@ -36,8 +36,14 @@ class MockModelAdapter(ModelAdapter):
         self._capabilities = ModelCapabilityProfile(
             supports_streaming=True,
             supports_structured_output=True,
+            supports_json_schema=True,
+            supports_tool_calling=True,
             supports_system_messages=True,
+            supports_cancellation=True,
+            supports_usage_reporting=True,
             context_window=65536,
+            is_mock=True,
+            is_local=True,
         )
 
     @property

@@ -18,6 +18,7 @@ from codemind.models.base import (
 )
 from codemind.models.codemind_local import CodeMindLocalAdapter
 from codemind.models.custom import CodeMindCustomAdapter, FallbackAwareModelAdapter, ProtocolNormalizer
+from codemind.models.gateway import ModelGateway
 from codemind.models.mock import MockModelAdapter
 from codemind.models.ollama import OllamaAdapter
 from codemind.models.protocol import (
@@ -99,6 +100,7 @@ __all__ = [
     "CodeMindLocalAdapter",
     "CodeMindCustomAdapter",
     "FallbackAwareModelAdapter",
+    "ModelGateway",
     "ProtocolNormalizer",
     "OllamaAdapter",
     "MockModelAdapter",

@@ -10,8 +10,10 @@ from pathlib import Path
 
 from codemind.cli.ui import TerminalUI
 from codemind.config import CodeMindConfig
+from codemind.connectors.manager import ConnectorManager
 from codemind.context.budget import ContextBudget
 from codemind.context.discovery import ProjectDiscovery, ProjectSummary
+from codemind.mcp.manager import MCPManager
 from codemind.memory.distiller import MemoryDistiller
 from codemind.memory.retriever import MemoryRetriever
 from codemind.memory.store import SQLiteProjectMemory
@@ -60,8 +62,13 @@ class CodeMindAgent:
             self.workspace_root,
             allow_external=config.security.allow_external_paths,
         )
-        self.permission_checker = PermissionChecker(mode=config.security.permission_mode)
+        self.permission_checker = PermissionChecker(
+            mode=config.security.permission_mode,
+            workspace_root=self.workspace_root,
+        )
         self.tools = ToolRegistry()
+        self.mcp = MCPManager(self.workspace_root)
+        self.connectors = ConnectorManager(self.workspace_root)
         self.model: ModelAdapter = create_adapter(config.model)
         self.discovery = ProjectDiscovery(self.workspace_root)
         self.budget = ContextBudget()
@@ -98,6 +105,26 @@ class CodeMindAgent:
             provider=self.config.model.provider.value,
             permission_mode=self.config.security.permission_mode.value,
         )
+
+        # Discover and register active MCP tools
+        try:
+            mcp_tools = await self.mcp.initialize_servers(self.tools)
+            if mcp_tools:
+                self.ui.print_info(f"Initialized {len(mcp_tools)} tool(s) from local MCP server(s).")
+        except Exception:
+            pass
+
+        # Discover and register active connected application tools
+        try:
+            conn_tools_cnt = self.connectors.register_tools_with(self.tools)
+            if conn_tools_cnt:
+                self.ui.print_info(f"Initialized {conn_tools_cnt} tool(s) from connected application(s).")
+        except Exception:
+            pass
+
+    async def shutdown(self) -> None:
+        """Cleanly close all background MCP servers and subprocesses."""
+        await self.mcp.shutdown_all()
 
     def cancel_active_task(self) -> None:
         """Signal cancellation to currently executing task loop."""
@@ -225,14 +252,21 @@ class CodeMindAgent:
             messages.append(ChatMessage(role="user", content=instruction))
 
         # IMPORTANT: Fresh segment budget starting at turn_count = 0
+        # Restore task-specific file mutations strictly for continuation of this exact task, never from global history
+        restored_created: list[str] = []
+        restored_modified: list[str] = []
+        if is_continuation and self.active_checkpoint and getattr(self.active_checkpoint, "current_task_id", None) == task_id:
+            restored_created = list(self.active_checkpoint.files_created)
+            restored_modified = list(self.active_checkpoint.files_modified)
+
         state = AgentState(
             session_id=self.active_snapshot.session_id,
             workspace_root=str(self.workspace_root),
             task_instruction=instruction,
             current_task_id=task_id,
             turn_count=0,
-            files_created=list(self.active_snapshot.files_changed) if is_continuation else [],
-            files_modified=[],
+            files_created=restored_created,
+            files_modified=restored_modified,
             messages=messages,
             plan=planner.plan,
         )
@@ -292,7 +326,8 @@ class CodeMindAgent:
 
         # Run verification checks ONLY if task actually finished without pausing or cancelling
         if has_modifications and final_state.is_complete and self.config.runtime.auto_verify:
-            test_cmd = self.verification.discover_test_command()
+            changed_files = list(set(final_state.files_created + final_state.files_modified))
+            test_cmd = self.verification.discover_test_command(changed_files=changed_files)
             if test_cmd:
                 self.ui.print_info(f"Running verification suite: '{test_cmd}'...")
                 check_result = await self.verification.run_check(test_cmd)

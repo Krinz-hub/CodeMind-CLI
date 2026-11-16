@@ -32,6 +32,10 @@ class ToolResult(BaseModel):
     def error(cls, message: str, error_code: str = "TOOL_ERROR", **kwargs: Any) -> ToolResult:
         return cls(ok=False, content=message, error_code=error_code, **kwargs)
 
+    @property
+    def output(self) -> str:
+        return self.content
+
 
 class ExecutionContext(BaseModel):
     """Contextual runtime environment provided to tool executors."""

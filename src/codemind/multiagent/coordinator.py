@@ -82,6 +82,7 @@ class MultiAgentCoordinator:
         self.approved_proposals: list[ChangeProposal] = []
         self.total_inference_turns: int = 0
         self.total_tool_calls: int = 0
+        self._is_cancelled: bool = False
 
     def decompose_and_assign_roles(self, instruction: str) -> tuple[TaskPlan, dict[str, AgentRole]]:
         """Decompose instruction into a dependency DAG and assign specialized worker roles."""
@@ -354,13 +355,20 @@ class MultiAgentCoordinator:
             all_created.extend(prop.created_files)
             all_modified.extend(prop.modified_files)
 
+        is_all_completed = self.plan.is_all_completed()
+        is_cancelled = self._is_cancelled
+
         report = HonestCompletionReport(
             files_created=list(set(all_created)),
             files_modified=list(set(all_modified)),
+            task_completed=is_all_completed,
+            is_paused=False,
+            is_cancelled=is_cancelled,
         )
 
-        if all_created or all_modified:
-            test_cmd = self.verification.discover_test_command()
+        if (all_created or all_modified) and is_all_completed and not is_cancelled:
+            changed_files = list(set(all_created + all_modified))
+            test_cmd = self.verification.discover_test_command(changed_files=changed_files)
             if test_cmd:
                 self.ui.print_info(f"Executing central integration verification: '{test_cmd}'...")
                 check_result = await self.verification.run_check(test_cmd)
@@ -369,8 +377,10 @@ class MultiAgentCoordinator:
             else:
                 report.unverified_notes.append("No automated test runner discovered for integration workspace.")
                 report.verified = False
-        else:
+        elif not all_created and not all_modified:
             report.verified = True  # Read-only task
+        else:
+            report.verified = False
 
         # Compute completion status
         if self.plan.is_all_completed():
