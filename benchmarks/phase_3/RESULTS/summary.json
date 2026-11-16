@@ -1,0 +1,65 @@
+{
+  "benchmark": "CodeMind Phase 3 Real-World Agent Evaluation",
+  "timestamp": "2026-11-16T10:20:00Z",
+  "environment": {
+    "os": "Linux (Ubuntu 24.04 LTS)",
+    "gpu": "NVIDIA GB10",
+    "inference_engine": "Ollama local API (http://127.0.0.1:11434)",
+    "python_version": "3.12"
+  },
+  "models": {
+    "qwen3.6:35b": {
+      "status": "COMPLETED",
+      "scenarios_passed": 6,
+      "scenarios_total": 6,
+      "pass_rate_pct": 100.0,
+      "total_duration_seconds": 462.11,
+      "total_turns": 59,
+      "total_tool_calls": 34,
+      "valid_tool_calls": 34,
+      "invalid_tool_calls": 0,
+      "approvals_audited": 6,
+      "unnecessary_file_modifications": 0,
+      "false_success_claims": 0,
+      "session_recovery_success": true,
+      "scenarios": {
+        "Test_A_Project_Understanding": {"success": true, "duration_s": 26.55, "turns": 6, "tools": 5},
+        "Test_B_Multi_File_Feature_Dev": {"success": true, "duration_s": 126.92, "turns": 11, "tools": 5},
+        "Test_C_Bug_Diagnosis_And_Repair": {"success": true, "duration_s": 50.32, "turns": 9, "tools": 4},
+        "Test_D_Test_Execution_And_Repair_Loop": {"success": true, "duration_s": 67.14, "turns": 11, "tools": 6},
+        "Test_E_Autonomous_Workflow": {"success": true, "duration_s": 92.06, "turns": 8, "tools": 5},
+        "Test_F_Session_Recovery": {"success": true, "duration_s": 99.12, "turns": 14, "tools": 9}
+      }
+    },
+    "qwen2.5:72b": {
+      "status": "COMPLETED",
+      "scenarios_passed": 4,
+      "scenarios_total": 6,
+      "pass_rate_pct": 66.7,
+      "total_duration_seconds": 1760.71,
+      "total_turns": 45,
+      "total_tool_calls": 32,
+      "valid_tool_calls": 32,
+      "invalid_tool_calls": 0,
+      "approvals_audited": 8,
+      "unnecessary_file_modifications": 0,
+      "false_success_claims": 0,
+      "session_recovery_success": true,
+      "scenarios": {
+        "Test_A_Project_Understanding": {"success": false, "failure_category": "Protocol envelope abort on large synthesis", "duration_s": 364.61, "turns": 7, "tools": 4},
+        "Test_B_Multi_File_Feature_Dev": {"success": false, "failure_category": "Failed to modify required files (protocol envelope abort)", "duration_s": 204.85, "turns": 4, "tools": 3},
+        "Test_C_Bug_Diagnosis_And_Repair": {"success": true, "duration_s": 172.39, "turns": 7, "tools": 5},
+        "Test_D_Test_Execution_And_Repair_Loop": {"success": true, "duration_s": 182.79, "turns": 8, "tools": 7},
+        "Test_E_Autonomous_Workflow": {"success": true, "duration_s": 370.98, "turns": 9, "tools": 7},
+        "Test_F_Session_Recovery": {"success": true, "duration_s": 465.09, "turns": 10, "tools": 6}
+      }
+    },
+    "mixtral:latest": {
+      "status": "COMPLETED_WITH_FAILURES",
+      "scenarios_passed": 0,
+      "scenarios_total": 6,
+      "pass_rate_pct": 0.0,
+      "notes": "High rate of protocol envelope non-compliance and syntax errors in generated patch code."
+    }
+  }
+}
