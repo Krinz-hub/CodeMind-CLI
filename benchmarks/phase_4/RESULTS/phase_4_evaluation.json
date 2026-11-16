@@ -1,0 +1,207 @@
+[
+  {
+    "scenario_id": "Scenario_A",
+    "title": "Architecture & Identity Recall",
+    "description": "Agent recalls project purpose, tech stack, and test command in fresh session without scanning repository.",
+    "success": true,
+    "duration_seconds": 13.143961778000175,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Recalled correctly with 0 exploratory tool calls.",
+    "failure_category": null,
+    "evidence": {
+      "final_content": "**Project Architecture & Purpose:**\nThis is an **Ecommerce order processing backend** written in **Python 3.12**. It utilizes a **FastAPI router** and integrates with **Redis cache**.\n\n**Verified Test Command:**\n`pytest -v tests/test_orders.py`",
+      "total_tool_calls": 0
+    }
+  },
+  {
+    "scenario_id": "Scenario_B",
+    "title": "Architectural Decision Record (ADR) Recall",
+    "description": "Agent accurately explains architectural decision rationale and rejected alternatives across sessions.",
+    "success": true,
+    "duration_seconds": 8.76746205399968,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Accurately cited ADR rationale and rejected alternatives.",
+    "failure_category": null,
+    "evidence": {
+      "final_content": "Based on the project's architectural decisions:\n\n**Why Argon2id was chosen:**\nIt was selected for its **memory-hard resistance to GPU/ASIC brute-force attacks**.\n\n**Rejected Alternatives:**\n1. **bcrypt**: Rejected due to insufficient GPU memory hardness.\n2. **PBKDF2**: Rejected because of outdated compute cost scaling.\n\n**Trade-off:**\nThe decision involves a slightly higher server RAM requirement per login."
+    }
+  },
+  {
+    "scenario_id": "Scenario_C",
+    "title": "Unresolved Task & Defect Recall",
+    "description": "Agent identifies unresolved technical limitations and unfinished tasks from earlier sessions.",
+    "success": true,
+    "duration_seconds": 20.387553752999793,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 2,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Accurately identified pending cache worker issue and affected file.",
+    "failure_category": null,
+    "evidence": {
+      "final_content": "Based on the project context and current file state, the following unresolved technical debt and unfinished tasks exist:\n\n1. **Incomplete Implementation**: The primary source file `src/worker.py` is currently a stub containing only a comment (`# Worker stub`). The actual logic for the cache eviction worker has not been implemented.\n\n2. **Unresolved Race Condition (Historical Debt)**: Project memory indicates that a previous attempt to fix a race condition in the cache eviction worker failed due to thread lock contention causing deadlocks during high concurrency tests. This specific issue remains unresolved."
+    }
+  },
+  {
+    "scenario_id": "Scenario_D",
+    "title": "Selective BM25 Retrieval & Token Budgeting",
+    "description": "Retriever selectively injects relevant domain records and directives while omitting irrelevant ones.",
+    "success": true,
+    "duration_seconds": 0.020581335999850126,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Retrieved context length 437 chars (budget: 3000 chars).",
+    "failure_category": null,
+    "evidence": {
+      "retrieved_context": "### Workspace Guidelines & Directives (Layer D)\n- **Coding Style**: Always use type hints on public functions.\n\n### Architectural Decisions & Rationale (Layer B)\n- **PostgreSQL Indexing Strategy**: Use BRIN indexes on time-series telemetry tables.\n\n### Relevant Prior Tasks & Operational History (Layer C)\n- **Optimized SQL Query** [STALE - Files moved or deleted]: Added index to users(email) for fast lookup. (Files touched: src/db.py)"
+    }
+  },
+  {
+    "scenario_id": "Scenario_E",
+    "title": "Stale Memory Detection",
+    "description": "System accurately detects and flags memory entries referencing deleted codebase files.",
+    "success": true,
+    "duration_seconds": 0.015696945999934542,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": true,
+    "notes": "Correctly transitioned from valid to stale upon file deletion.",
+    "failure_category": null,
+    "evidence": {
+      "initial_stale": false,
+      "detected_stale": true
+    }
+  },
+  {
+    "scenario_id": "Scenario_F",
+    "title": "Conflict Resolution (Active vs Superseded)",
+    "description": "Agent respects active decision and ignores superseded architectural patterns.",
+    "success": true,
+    "duration_seconds": 14.023241039999903,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Agent adhered strictly to active JWT decision; ignored superseded cookie decision.",
+    "failure_category": null,
+    "evidence": {
+      "final_content": "Based on the project's architectural decisions, the official authentication mechanism is **stateless JWT Bearer tokens with RS256 asymmetric keys**."
+    }
+  },
+  {
+    "scenario_id": "Scenario_G",
+    "title": "Cross-Project Physical & Logical Isolation",
+    "description": "Memory stores in distinct repositories maintain complete physical isolation with zero cross-leakage.",
+    "success": true,
+    "duration_seconds": 0.03597592500000246,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Strict zero-leakage verified across distinct workspace roots.",
+    "failure_category": null,
+    "evidence": {
+      "isolated": true,
+      "alpha_has_own": true,
+      "beta_has_own": true
+    }
+  },
+  {
+    "scenario_id": "Scenario_H",
+    "title": "Secret Shield Redaction Gate",
+    "description": "Prevents storage of API keys, tokens, and credentials in both SQLite records and FTS5 indices.",
+    "success": true,
+    "duration_seconds": 0.01199302000031821,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "All credentials redacted prior to persistence.",
+    "failure_category": null,
+    "evidence": {
+      "raw_content": "Connected using key [REDACTED_OPENAI_KEY] and GitHub PAT [REDACTED_GITHUB_TOKEN]",
+      "raw_meta": "{\"secret_token\": \"[REDACTED_GITHUB_TOKEN]\"}"
+    }
+  },
+  {
+    "scenario_id": "Scenario_I",
+    "title": "Dynamic Memory Rebuild from Ground Truth",
+    "description": "Re-scans repository structure and updates Layer A baseline records to reflect structural changes.",
+    "success": true,
+    "duration_seconds": 0.01631573800023034,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "Successfully rebuilt 4 records after workspace mutation.",
+    "failure_category": null,
+    "evidence": {
+      "stack_content": "Manifest Files: pyproject.toml\nCore Technology: Python\n"
+    }
+  },
+  {
+    "scenario_id": "Scenario_J",
+    "title": "Crash & Interrupted Write Resilience",
+    "description": "SQLite WAL mode guarantees zero corruption and clean recovery following interrupted transactions.",
+    "success": true,
+    "duration_seconds": 0.012148911000167573,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "memory_recall_accuracy": 1.0,
+    "token_budget_respected": true,
+    "secret_shield_effective": true,
+    "isolation_verified": true,
+    "stale_detection_verified": false,
+    "notes": "PRAGMA integrity_check: ok; aborted write safely rolled back.",
+    "failure_category": null,
+    "evidence": {
+      "integrity_result": "ok"
+    }
+  }
+]

@@ -1,0 +1,259 @@
+[
+  {
+    "scenario_id": "Scenario_A",
+    "title": "DAG Decomposition & Role Assignment",
+    "description": "Coordinator decomposes diverse instructions into dependency DAGs with specialized roles.",
+    "success": true,
+    "duration_seconds": 0.023117282999010058,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Correctly mapped bug, research, and parallel DAG topologies.",
+    "evidence": {
+      "bug_roles": [
+        "debugging",
+        "testing"
+      ],
+      "res_roles": [
+        "research",
+        "coding"
+      ],
+      "parallel_ready_count": 2
+    }
+  },
+  {
+    "scenario_id": "Scenario_B",
+    "title": "Role Specification & Tool Containment",
+    "description": "Specialized worker role configs enforce read-only bounds, custom prompts, and scoped permissions.",
+    "success": true,
+    "duration_seconds": 0.01337303000036627,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "All 4 specialized worker agent configurations validated.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_C",
+    "title": "Research and Coding Agent Cooperation",
+    "description": "Research agent findings seamlessly handed off to Coding agent for implementation.",
+    "success": true,
+    "duration_seconds": 0.1200418050011649,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 2,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Research agent inspected without mutation; Coding agent implemented stop method.",
+    "evidence": {
+      "findings": [
+        "Engine has start method. Needs stop method."
+      ],
+      "merged_files": [
+        "src/engine.py"
+      ]
+    }
+  },
+  {
+    "scenario_id": "Scenario_D",
+    "title": "Debugging & Testing Collaborative Repair",
+    "description": "Debugging agent applies targeted fix; Testing agent executes regression suite; central verification confirms PASS.",
+    "success": true,
+    "duration_seconds": 0.2308472310014622,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 2,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Bug repaired and verified. Final status: completed_verified.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_E",
+    "title": "Parallel Independent Task Execution",
+    "description": "Simultaneous execution of disjoint coding tasks in isolated worker sandboxes with conflict-free merge.",
+    "success": true,
+    "duration_seconds": 0.1426812770005199,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 2,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Alpha and Beta created simultaneously in independent sandboxes.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_F",
+    "title": "Shared File Conflict Detection & Prevention",
+    "description": "Coordinator intercepts concurrent mutations to the same file, blocks proposals, and prevents file corruption.",
+    "success": true,
+    "duration_seconds": 0.18864027399831684,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 2,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Primary workspace preserved in original pristine state.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_G",
+    "title": "Isolated Worker Workspace Containment",
+    "description": "Worker sandbox path canonicalization prevents directory traversal and strictly bounds writes to isolated subtree.",
+    "success": true,
+    "duration_seconds": 0.013549174000218045,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Worker sandbox strictly bound to worker-coding-contained.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_H",
+    "title": "Rejection of Unauthorized Inter-Agent Messages",
+    "description": "MessageRouter enforces coordinator supremacy and rejects peer-to-peer bypasses.",
+    "success": true,
+    "duration_seconds": 5.1168999561923556e-05,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Bypass attempts blocked by ProtocolViolationError.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_I",
+    "title": "Automatic Worker Crash Recovery",
+    "description": "Sidecar catches unhandled worker exceptions, returns FAILURE message, and updates task state gracefully.",
+    "success": true,
+    "duration_seconds": 0.07547944100042514,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Orchestrator safely contained worker failure without process exit.",
+    "evidence": {
+      "task_status": "failed",
+      "evidence": "Unexpected model error: 'NoneType' object is not callable"
+    }
+  },
+  {
+    "scenario_id": "Scenario_J",
+    "title": "Coordinator Interruption and State Restoration",
+    "description": "Coordinator state serialized atomically and cleanly restored with task statuses intact.",
+    "success": true,
+    "duration_seconds": 0.004430493001564173,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Restored completed and pending tasks from atomic checkpoint.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_K",
+    "title": "Bounded Inference Concurrency",
+    "description": "InferenceGate regulates worker generation to max concurrency of 1, shielding host GPU/VRAM from exhaustion.",
+    "success": true,
+    "duration_seconds": 0.10356256399973063,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 5,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "All 5 worker requests serialized cleanly (peak concurrency: 1).",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_L",
+    "title": "Worker Cancellation & Graceful Shutdown",
+    "description": "Sidecar runtime reliably terminates individual workers and executes clean global shutdown.",
+    "success": true,
+    "duration_seconds": 0.024269706000268343,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Verified graceful worker lifecycle termination.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_M",
+    "title": "Shared Memory & Role-Scoped Skill Distribution",
+    "description": "Persistent project memory excerpts and engineering skills accurately injected into worker context.",
+    "success": true,
+    "duration_seconds": 0.024048105000474607,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Retrieved decisions and matched skills: api-development, python-backend.",
+    "evidence": {}
+  },
+  {
+    "scenario_id": "Scenario_N",
+    "title": "End-to-End Multi-Agent Feature Delivery",
+    "description": "Complete multi-agent software engineering workflow using qwen3.6:35b with coordinator delegation, sandbox isolation, merge, and verification.",
+    "success": true,
+    "duration_seconds": 180.72032612799921,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 4,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Created 2 files. Status: completed_verified.",
+    "evidence": {
+      "status": "completed_verified",
+      "verified": true,
+      "files": [
+        "tests/test_limiter.py",
+        "src/limiter.py"
+      ]
+    }
+  },
+  {
+    "scenario_id": "Scenario_O",
+    "title": "Comparative Evaluation: Multi-Agent System vs Single-Agent Phase 6",
+    "description": "Empirical comparison between Phase 7 multi-agent delegation and Phase 6 single-agent orchestration.",
+    "success": true,
+    "duration_seconds": 151.18731516200023,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 4,
+    "tool_calls_count": 4,
+    "isolation_verified": true,
+    "coordination_verified": true,
+    "verification_passed": true,
+    "notes": "Multi-agent system completed and verified in 151.19s.",
+    "evidence": {
+      "multi_agent_duration_seconds": 151.19,
+      "multi_agent_verified": true,
+      "single_agent_phase_6_baseline_seconds": 137.39,
+      "workspace_isolation_safety": "Worker Sandboxes (.codemind/workspaces/) with unified diff proposals"
+    }
+  }
+]

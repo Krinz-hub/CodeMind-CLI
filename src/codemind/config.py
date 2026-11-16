@@ -18,6 +18,7 @@ class PermissionMode(str, Enum):
 
 
 class ModelProvider(str, Enum):
+    CODEMIND_CUSTOM = "codemind-custom"
     CODEMIND_LOCAL = "codemind-local"
     OLLAMA = "ollama"
     OPENAI_LOCAL = "openai-local"
@@ -27,7 +28,7 @@ class ModelProvider(str, Enum):
 class ModelSettings(BaseModel):
     provider: ModelProvider = Field(
         default=ModelProvider.OLLAMA,
-        description="Active model provider adapter (ollama, openai-local, codemind-local, mock)",
+        description="Active model provider adapter (codemind-custom, ollama, openai-local, codemind-local, mock)",
     )
     model_name: str = Field(
         default="qwen3.6:35b",
@@ -56,6 +57,22 @@ class ModelSettings(BaseModel):
     options: dict[str, Any] = Field(
         default_factory=dict,
         description="Model-specific inference parameters (e.g. seed, num_predict, top_p)",
+    )
+    fallback_provider: ModelProvider | None = Field(
+        default=ModelProvider.OLLAMA,
+        description="Fallback model provider if primary is unreachable",
+    )
+    fallback_model: str | None = Field(
+        default="qwen3.6:35b",
+        description="Fallback model name",
+    )
+    fallback_endpoint: str | None = Field(
+        default="http://127.0.0.1:11434",
+        description="Fallback model endpoint URL",
+    )
+    enable_fallback: bool = Field(
+        default=True,
+        description="Whether to automatically route to fallback provider on primary failure",
     )
 
 

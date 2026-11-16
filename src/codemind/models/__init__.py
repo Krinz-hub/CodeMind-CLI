@@ -17,6 +17,7 @@ from codemind.models.base import (
     ModelUsage,
 )
 from codemind.models.codemind_local import CodeMindLocalAdapter
+from codemind.models.custom import CodeMindCustomAdapter, FallbackAwareModelAdapter, ProtocolNormalizer
 from codemind.models.mock import MockModelAdapter
 from codemind.models.ollama import OllamaAdapter
 from codemind.models.protocol import (
@@ -47,6 +48,24 @@ def create_adapter(settings: ModelSettings) -> ModelAdapter:
             model_name=settings.model_name,
             options=settings.options,
         )
+    elif settings.provider == ModelProvider.CODEMIND_CUSTOM:
+        primary = CodeMindCustomAdapter(
+            endpoint=settings.endpoint,
+            model_name=settings.model_name,
+            timeout_seconds=settings.timeout_seconds,
+            options=settings.options,
+            context_window=settings.context_window,
+        )
+        if settings.enable_fallback and settings.fallback_provider:
+            fb_settings = ModelSettings(
+                provider=settings.fallback_provider,
+                model_name=settings.fallback_model or "qwen3.6:35b",
+                endpoint=settings.fallback_endpoint or "http://127.0.0.1:11434",
+                enable_fallback=False,
+            )
+            fallback = create_adapter(fb_settings)
+            return FallbackAwareModelAdapter(primary, fallback, enable_fallback=True)
+        return primary
     elif settings.provider in (ModelProvider.OPENAI_LOCAL, ModelProvider.CODEMIND_LOCAL):
         return CodeMindLocalAdapter(
             endpoint=settings.endpoint,
@@ -56,11 +75,12 @@ def create_adapter(settings: ModelSettings) -> ModelAdapter:
         )
     else:
         # Default fallback
-        return CodeMindLocalAdapter(
+        return CodeMindCustomAdapter(
             endpoint=settings.endpoint,
             model_name=settings.model_name,
             timeout_seconds=settings.timeout_seconds,
             options=settings.options,
+            context_window=settings.context_window,
         )
 
 
@@ -77,6 +97,9 @@ __all__ = [
     "ContextOverflowError",
     "MalformedResponseError",
     "CodeMindLocalAdapter",
+    "CodeMindCustomAdapter",
+    "FallbackAwareModelAdapter",
+    "ProtocolNormalizer",
     "OllamaAdapter",
     "MockModelAdapter",
     "ProtocolParser",

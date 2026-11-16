@@ -1,0 +1,274 @@
+[
+  {
+    "scenario_id": "Scenario_A",
+    "title": "Complex Multi-File Feature Implementation",
+    "description": "Autonomous decomposition and implementation of cache service and test suite.",
+    "success": true,
+    "duration_seconds": 87.71102408100069,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 53,
+    "tool_calls_count": 7,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Created 6 files. Status: completed_verified.",
+    "evidence": {
+      "status": "completed_verified",
+      "verified": true
+    }
+  },
+  {
+    "scenario_id": "Scenario_B",
+    "title": "Dependency-Aware Execution Planning (DAG)",
+    "description": "Verifies DAG topological ordering, readiness resolution, and cycle prevention.",
+    "success": true,
+    "duration_seconds": 8.214399986172793e-05,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "DAG topological dispatch and cycle detection verified.",
+    "evidence": {
+      "topo_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "cycles_detected": 1
+    }
+  },
+  {
+    "scenario_id": "Scenario_C",
+    "title": "Recovery from Malformed Model Output",
+    "description": "Structured protocol loopback correction and recovery without agent crash.",
+    "success": true,
+    "duration_seconds": 9.968000085791573e-06,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Malformed protocol envelope recovered via structured loopback correction.",
+    "evidence": {
+      "category": "invalid_protocol",
+      "action": "loopback_correction"
+    }
+  },
+  {
+    "scenario_id": "Scenario_D",
+    "title": "Recovery from a Failed Test (Test-Driven Repair)",
+    "description": "Agent identifies test assertion failure, analyzes root cause, and applies minimal patch.",
+    "success": true,
+    "duration_seconds": 20.476306758000646,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 9,
+    "tool_calls_count": 4,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Test repaired. Returncode: 0.",
+    "evidence": {
+      "calc_content": "def add(a: int, b: int) -> int:\n    return a + b"
+    }
+  },
+  {
+    "scenario_id": "Scenario_E",
+    "title": "Recovery from a Failed Build",
+    "description": "Identifies syntax and compilation failures and generates targeted repair strategies.",
+    "success": true,
+    "duration_seconds": 2.828800006682286e-05,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Build failure properly classified into BUILD_REPAIR strategy.",
+    "evidence": {
+      "category": "build_failure",
+      "action": "build_repair"
+    }
+  },
+  {
+    "scenario_id": "Scenario_F",
+    "title": "Interrupted Execution & Checkpoint Restoration",
+    "description": "Resumes execution from atomic checkpoint without repeating completed steps.",
+    "success": true,
+    "duration_seconds": 0.0043078329999843845,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Workflow reconstructed from atomic checkpoint cleanly.",
+    "evidence": {
+      "saved_file": "/home/piet/Documents/codemind cli/benchmarks/phase_6/workspaces/scenario_f_checkpoint_restore/.codemind/checkpoints/cm-interrupted-session_ckpt-20261116-113207-16c4d9.json",
+      "ready_on_resume": "step-2"
+    }
+  },
+  {
+    "scenario_id": "Scenario_G",
+    "title": "User Approval During Sensitive Operations",
+    "description": "Supervised mode halts execution and requires user approval before destructive tasks.",
+    "success": true,
+    "duration_seconds": 0.01222419700025057,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Sensitive task correctly blocked pending human approval.",
+    "evidence": {
+      "task_status": "blocked",
+      "evidence": "Awaiting manual approval"
+    }
+  },
+  {
+    "scenario_id": "Scenario_H",
+    "title": "Task Cancellation and Graceful Shutdown",
+    "description": "Immediately marks running and pending tasks as CANCELLED upon abort request.",
+    "success": true,
+    "duration_seconds": 0.011716339000486187,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Cancellation signal aborted pipeline cleanly.",
+    "evidence": {
+      "orchestrator_cancelled": true
+    }
+  },
+  {
+    "scenario_id": "Scenario_I",
+    "title": "Controlled Parallel Execution of Independent Tasks",
+    "description": "Allows non-conflicting tasks modifying disjoint files to execute in parallel.",
+    "success": true,
+    "duration_seconds": 2.6560000151221175e-05,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Disjoint tasks cleared for safe parallel dispatch.",
+    "evidence": {
+      "can_parallelize": true,
+      "safe_batch_size": 2
+    }
+  },
+  {
+    "scenario_id": "Scenario_J",
+    "title": "Detection of Conflicting Operations",
+    "description": "Prevents concurrent execution of tasks sharing mutable files.",
+    "success": true,
+    "duration_seconds": 1.52000002344721e-05,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Conflicting file modifications properly serialized.",
+    "evidence": {
+      "can_parallelize": false,
+      "conflict_reason": "Shared mutable files: src/config.py"
+    }
+  },
+  {
+    "scenario_id": "Scenario_K",
+    "title": "Context Exhaustion and Plan Continuation",
+    "description": "Detects context window exhaustion and triggers memory compaction and replanning.",
+    "success": true,
+    "duration_seconds": 9.823999789659865e-06,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 1,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Context window exhaustion classified into REPLAN strategy.",
+    "evidence": {
+      "category": "context_exhaustion",
+      "action": "replan"
+    }
+  },
+  {
+    "scenario_id": "Scenario_L",
+    "title": "Long-Running Workflow with Multiple Checkpoints",
+    "description": "Multi-stage execution where each stage must verify tangible output before advancing.",
+    "success": true,
+    "duration_seconds": 80.47107029100061,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 33,
+    "tool_calls_count": 10,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Both checkpointed stages satisfied verification criteria.",
+    "evidence": {
+      "models_exists": true,
+      "service_exists": true
+    }
+  },
+  {
+    "scenario_id": "Scenario_M",
+    "title": "Honest Reporting of Partially Completed Tasks",
+    "description": "Strictly reports PARTIALLY_COMPLETED when subsequent tasks fail, avoiding false claims.",
+    "success": true,
+    "duration_seconds": 0.015202364000288071,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Honest completion status verified: PARTIALLY_COMPLETED.",
+    "evidence": {
+      "status": "partially_completed"
+    }
+  },
+  {
+    "scenario_id": "Scenario_N",
+    "title": "Recovery from Uncertain Tool Execution Outcomes",
+    "description": "Verifies disk state before repeating interrupted operations to avoid duplicate mutation.",
+    "success": true,
+    "duration_seconds": 1.4863999240333214e-05,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 0,
+    "tool_calls_count": 0,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "Uncertain tool outcome triggers disk verification prior to retry.",
+    "evidence": {
+      "category": "uncertain_outcome",
+      "action": "verify_disk_outcome"
+    }
+  },
+  {
+    "scenario_id": "Scenario_O",
+    "title": "End-to-End Software Engineering Task",
+    "description": "Full autonomous workflow execution: planning, implementation, unit testing, and verification.",
+    "success": true,
+    "duration_seconds": 127.2107630569999,
+    "model_name": "qwen3.6:35b",
+    "turns_count": 59,
+    "tool_calls_count": 13,
+    "recovery_success": true,
+    "checkpoint_verified": true,
+    "verification_passed": true,
+    "notes": "E2E task verified. Created 9 files.",
+    "evidence": {
+      "status": "completed_verified",
+      "verified": true
+    }
+  }
+]

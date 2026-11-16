@@ -1,8 +1,12 @@
-"""Terminal UI and formatted rendering for CodeMind CLI using Rich."""
+"""Terminal UI and formatted rendering for CodeMind CLI using Rich.
+
+Provides both standard logging callouts and the polished dark-themed CodeMind TUI.
+"""
 
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 from typing import Any
 
 from rich.console import Console
@@ -11,6 +15,7 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
+from codemind import __brand_mark__, __version__
 from codemind.cli.branding import (
     BRAND_MARK,
     COLOR_ACCENT,
@@ -22,14 +27,18 @@ from codemind.cli.branding import (
     PLAIN_BRAND_MARK,
     TAGLINE,
 )
+from codemind.cli.tui import CodeMindTUI
+from codemind.planning.task import TaskItem, TaskPlan, TaskStatus
+from codemind.verification.reporter import HonestCompletionReport
 
 
 class TerminalUI:
-    """Encapsulates all terminal rendering with plain-mode support."""
+    """Encapsulates all terminal rendering with plain-mode and rich TUI support."""
 
     def __init__(self, plain_mode: bool = False):
         self.plain_mode = plain_mode
         self.console = Console(no_color=plain_mode, highlight=not plain_mode)
+        self.tui = CodeMindTUI(console=self.console, plain_mode=plain_mode)
 
     def print_banner(
         self,
@@ -37,105 +46,44 @@ class TerminalUI:
         provider: str,
         workspace: str,
         permission_mode: str,
+        turn_budget: int = 20,
     ) -> None:
-        """Display the official CodeMind welcome banner."""
-        if self.plain_mode:
-            print(f"{PLAIN_BRAND_MARK}")
-            print(f"{TAGLINE}\n")
-            print(f"Model: {model_name}")
-            print(f"Provider: {provider}")
-            print(f"Workspace: {workspace}")
-            print(f"Mode: {permission_mode}\n")
-            print("Ready. Describe what you want to build.")
-            print("-" * 50)
-            return
-
-        header_text = Text()
-        header_text.append(f"{BRAND_MARK}\n", style=f"bold {COLOR_ACCENT}")
-        header_text.append(f"{TAGLINE}\n\n", style=f"italic {COLOR_MUTED}")
-        header_text.append("Model: ", style="bold")
-        header_text.append(f"{model_name}\n", style=COLOR_INFO)
-        header_text.append("Provider: ", style="bold")
-        header_text.append(f"{provider}\n", style="cyan")
-        header_text.append("Workspace: ", style="bold")
-        header_text.append(f"{workspace}\n", style="magenta")
-        header_text.append("Mode: ", style="bold")
-        header_text.append(f"{permission_mode}", style="green" if permission_mode == "supervised" else "yellow")
-
-        panel = Panel(
-            header_text,
-            border_style=COLOR_ACCENT,
-            padding=(1, 2),
-            title="[bold]▟●▙ CodeMind Companion[/bold]",
-            subtitle="[italic]Milo is ready[/italic]",
+        """Display the official CodeMind welcome header."""
+        self.tui.print_header(
+            model_name=model_name,
+            provider=provider,
+            workspace=workspace,
+            permission_mode=permission_mode,
+            turn_budget=turn_budget,
         )
-        self.console.print(panel)
-        self.console.print("[dim]Ready. Describe what you want to build.[/dim]\n")
 
-    def print_plan(self, tasks: list[dict[str, Any]]) -> None:
-        """Render a structured task plan."""
-        if not tasks:
-            return
+    def print_budget_meter(self, turn: int, max_turns: int, tool_calls: int, max_tool_calls: int) -> None:
+        """Render a compact turn and tool-call budget gauge."""
+        self.tui.print_budget_meter(turn, max_turns, tool_calls, max_tool_calls)
 
-        if self.plain_mode:
-            print("\n--- Plan ---")
-            for t in tasks:
-                status_icon = {
-                    "completed": "[v]",
-                    "in_progress": "[*]",
-                    "pending": "[ ]",
-                    "failed": "[x]",
-                    "blocked": "[!]",
-                    "skipped": "[-]",
-                }.get(t.get("status", "pending"), "[ ]")
-                print(f"{status_icon} {t.get('id', '')}: {t.get('title', '')}")
-            print("-" * 12 + "\n")
-            return
+    def print_task_lifecycle(self, phase: str, details: str = "") -> None:
+        """Display an explicit task lifecycle transition badge."""
+        self.tui.print_task_lifecycle(phase, details)
 
-        table = Table(
-            title="[bold #FF9E3B]Milo's Task Plan[/bold #FF9E3B]",
-            border_style=COLOR_MUTED,
-            show_header=True,
-            header_style="bold cyan",
-        )
-        table.add_column("Status", width=12, justify="center")
-        table.add_column("ID", width=10, style="dim")
-        table.add_column("Task Description", justify="left")
+    def print_task_paused(self, turns: int, max_turns: int) -> None:
+        """Render explicit task paused notification."""
+        self.tui.print_task_paused(turns, max_turns)
 
-        for t in tasks:
-            status = t.get("status", "pending")
-            status_style = {
-                "completed": (f"[{COLOR_SUCCESS}]✓ Done[/{COLOR_SUCCESS}]"),
-                "in_progress": (f"[{COLOR_ACCENT}]→ Active[/{COLOR_ACCENT}]"),
-                "pending": (f"[{COLOR_MUTED}]○ Pending[/{COLOR_MUTED}]"),
-                "failed": (f"[{COLOR_DANGER}]✗ Failed[/{COLOR_DANGER}]"),
-                "blocked": (f"[{COLOR_WARNING}]! Blocked[/{COLOR_WARNING}]"),
-                "skipped": (f"[{COLOR_MUTED}]- Skipped[/{COLOR_MUTED}]"),
-            }.get(status, status)
+    def print_verification_card(self, report: HonestCompletionReport, workspace_root: Path | None = None) -> None:
+        """Render honest verification results card."""
+        self.tui.print_verification_card(report, workspace_root)
 
-            table.add_row(status_style, t.get("id", ""), t.get("title", ""))
-
-        self.console.print(table)
-        self.console.print()
+    def print_plan(self, tasks: list[dict[str, Any]] | list[TaskItem]) -> None:
+        """Render a structured task plan with clean state indicators."""
+        self.tui.print_plan_progress(tasks)
 
     def print_tool_call(self, tool_name: str, reason: str, args: dict[str, Any]) -> None:
-        """Render tool invocation callout."""
-        if self.plain_mode:
-            print(f"\n[Tool: {tool_name}] Reason: {reason}")
-            print(f"Arguments: {args}")
-            return
+        """Render tool invocation callout without raw dictionary dumps."""
+        self.tui.print_tool_activity(tool_name, reason, args)
 
-        msg = Text()
-        msg.append("Action: ", style="bold")
-        msg.append(f"{tool_name}\n", style=f"bold {COLOR_ACCENT}")
-        if reason:
-            msg.append("Reason: ", style="bold dim")
-            msg.append(f"{reason}\n", style="italic")
-        arg_str = ", ".join(f"{k}={repr(v)}" for k, v in args.items())
-        msg.append("Arguments: ", style="bold dim")
-        msg.append(f"({arg_str})", style=COLOR_INFO)
-
-        self.console.print(Panel(msg, border_style="dim", title=f"[{COLOR_ACCENT}]Milo Tool Request[/{COLOR_ACCENT}]"))
+    def print_tool_result(self, ok: bool, output: str, truncated: bool = False) -> None:
+        """Render tool execution output."""
+        self.tui.print_tool_observation(ok, output, truncated)
 
     def print_diff(self, file_path: str, diff_text: str) -> None:
         """Render unified diff with syntax highlighting."""
@@ -173,42 +121,21 @@ class TerminalUI:
             )
         )
 
-    def request_approval(self, prompt: str) -> bool:
-        """Prompt user for confirmation (y/N)."""
+    def request_approval(self, prompt: str, target: str = "") -> bool:
+        """Prompt user for confirmation (y/N) with clean authorization panel."""
         suffix = " [y/N]: "
         if self.plain_mode:
-            res = input(f"{prompt}{suffix}").strip().lower()
+            res = input(f"{prompt} ({target}){suffix}" if target else f"{prompt}{suffix}").strip().lower()
             return res in ["y", "yes"]
 
-        self.console.print(f"[bold {COLOR_WARNING}]? {prompt}[/bold {COLOR_WARNING}]", end="")
+        self.tui.print_approval_card(prompt, target or "workspace action")
         try:
-            res = input(suffix).strip().lower()
+            self.console.print(f"[bold {COLOR_WARNING}]Approve action?{suffix}[/bold {COLOR_WARNING}]", end="")
+            res = input().strip().lower()
             return res in ["y", "yes"]
         except (KeyboardInterrupt, EOFError):
             self.console.print()
             return False
-
-    def print_tool_result(self, ok: bool, output: str, truncated: bool = False) -> None:
-        """Render tool execution output."""
-        if self.plain_mode:
-            status = "OK" if ok else "ERROR"
-            trunc = " (truncated)" if truncated else ""
-            print(f"Result [{status}]{trunc}:\n{output}\n")
-            return
-
-        style = COLOR_SUCCESS if ok else COLOR_DANGER
-        title = "Observation" if ok else "Tool Error"
-        if truncated:
-            title += " (output truncated)"
-
-        display_text = output if output.strip() else "(empty output)"
-        self.console.print(
-            Panel(
-                Text(display_text, style="white"),
-                title=f"[{style}]{title}[/{style}]",
-                border_style=style,
-            )
-        )
 
     def print_final_response(self, content: str, summary: list[str] | None = None) -> None:
         """Render the final answer from Milo."""
@@ -232,22 +159,32 @@ class TerminalUI:
         self.console.print(
             Panel(
                 msg,
-                title=f"[bold {COLOR_SUCCESS}]▟●▙ Task Completed[/bold {COLOR_SUCCESS}]",
-                border_style=COLOR_SUCCESS,
+                title="[bold cyan]▟●▙ Milo Engineering Response[/bold cyan]",
+                border_style=COLOR_ACCENT,
                 padding=(1, 2),
             )
         )
 
-    def print_error(self, message: str) -> None:
-        """Render error message."""
+    def print_info(self, text: str) -> None:
         if self.plain_mode:
-            print(f"Error: {message}", file=sys.stderr)
-            return
-        self.console.print(f"[bold {COLOR_DANGER}]✗ Error:[/] {message}")
+            print(f"Note: {text}")
+        else:
+            self.console.print(f"[{COLOR_INFO}]ℹ[/] [dim]{text}[/dim]")
 
-    def print_info(self, message: str) -> None:
-        """Render informational note."""
+    def print_warning(self, text: str) -> None:
         if self.plain_mode:
-            print(f"Note: {message}")
-            return
-        self.console.print(f"[{COLOR_INFO}]ℹ[/] {message}")
+            print(f"Warning: {text}")
+        else:
+            self.console.print(f"[{COLOR_WARNING}]![/] [{COLOR_WARNING}]{text}[/{COLOR_WARNING}]")
+
+    def print_error(self, text: str) -> None:
+        if self.plain_mode:
+            print(f"Error: {text}", file=sys.stderr)
+        else:
+            self.console.print(f"[{COLOR_DANGER}]✗[/] [{COLOR_DANGER}]{text}[/{COLOR_DANGER}]")
+
+    def print_success(self, text: str) -> None:
+        if self.plain_mode:
+            print(f"Success: {text}")
+        else:
+            self.console.print(f"[{COLOR_SUCCESS}]✓[/] [{COLOR_SUCCESS}]{text}[/{COLOR_SUCCESS}]")

@@ -22,6 +22,8 @@ class AgentEventType(str, Enum):
     VERIFICATION_START = "verification_start"
     VERIFICATION_END = "verification_end"
     TASK_COMPLETED = "task_completed"
+    TASK_PAUSED = "task_paused"
+    TASK_CANCELLED = "task_cancelled"
     ERROR = "error"
 
 

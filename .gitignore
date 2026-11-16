@@ -28,7 +28,8 @@ ENV/
 
 # Disposable benchmark run execution directories
 benchmarks/phase_3/run_*
+benchmarks/*/workspaces/
 
-# Sessions
-.codemind/sessions/
+# Local state & sessions
+.codemind/
 .pytest_cache/

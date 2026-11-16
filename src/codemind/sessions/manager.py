@@ -76,3 +76,18 @@ class SessionManager:
         clean_line = redact_secrets(serialized) + "\n"
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(clean_line)
+
+    def get_session_events(self, session_id: str) -> list[dict[str, Any]]:
+        """Read all logged events for a session."""
+        log_file = self.sessions_dir / f"{session_id}.events.jsonl"
+        events: list[dict[str, Any]] = []
+        if not log_file.is_file():
+            return events
+        with open(log_file, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    try:
+                        events.append(json.loads(line))
+                    except Exception:
+                        continue
+        return events

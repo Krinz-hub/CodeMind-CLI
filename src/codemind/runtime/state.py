@@ -25,6 +25,12 @@ class AgentState(BaseModel):
     messages: list[ChatMessage] = Field(default_factory=list)
     plan: TaskPlan = Field(default_factory=TaskPlan)
     is_complete: bool = False
+    is_paused: bool = False
+    is_cancelled: bool = False
+    current_task_id: str | None = None
+    status: str = "running"
+    expected_files: list[str] = Field(default_factory=list)
+    criteria_verified: bool = False
     final_content: str = ""
     final_summary: list[str] = Field(default_factory=list)
 

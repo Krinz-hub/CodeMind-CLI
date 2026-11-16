@@ -117,27 +117,38 @@ def current_cmd(
 
     if config.plain_mode:
         print("\nActive Model Configuration:")
-        print(f"  Model:       {config.model.model_name}")
-        print(f"  Provider:    {config.model.provider.value}")
-        print(f"  Endpoint:    {config.model.endpoint}")
-        print(f"  Timeout:     {config.model.timeout_seconds}s")
-        print(f"  Context:     {config.model.context_window} tokens")
-        print(f"  Temperature: {config.model.temperature}\n")
+        print(f"  Model:            {config.model.model_name}")
+        print(f"  Provider:         {config.model.provider.value}")
+        print(f"  Endpoint:         {config.model.endpoint}")
+        print(f"  Timeout:          {config.model.timeout_seconds}s")
+        print(f"  Context:          {config.model.context_window} tokens")
+        print(f"  Temperature:      {config.model.temperature}")
+        if config.model.enable_fallback and config.model.fallback_model:
+            fb_prov = config.model.fallback_provider.value if config.model.fallback_provider else "none"
+            print(f"  Fallback Model:   {config.model.fallback_model} ({fb_prov})\n")
+        else:
+            print("  Fallback:         Disabled\n")
         return
 
     content = Text()
-    content.append("Model Name:   ", style="bold")
+    content.append("Model Name:       ", style="bold")
     content.append(f"{config.model.model_name}\n", style=f"bold {COLOR_ACCENT}")
-    content.append("Provider:     ", style="bold")
+    content.append("Provider:         ", style="bold")
     content.append(f"{config.model.provider.value}\n", style=COLOR_INFO)
-    content.append("Endpoint:     ", style="bold")
+    content.append("Endpoint:         ", style="bold")
     content.append(f"{config.model.endpoint}\n", style="cyan")
-    content.append("Timeout:      ", style="bold")
+    content.append("Timeout:          ", style="bold")
     content.append(f"{config.model.timeout_seconds} seconds\n", style="dim")
-    content.append("Context Size: ", style="bold")
+    content.append("Context Size:     ", style="bold")
     content.append(f"{config.model.context_window} tokens\n", style="dim")
-    content.append("Temperature:  ", style="bold")
-    content.append(f"{config.model.temperature}", style="dim")
+    content.append("Temperature:      ", style="bold")
+    content.append(f"{config.model.temperature}\n", style="dim")
+    content.append("Fallback System:  ", style="bold")
+    if config.model.enable_fallback and config.model.fallback_model:
+        fb_prov = config.model.fallback_provider.value if config.model.fallback_provider else "none"
+        content.append(f"Enabled -> {config.model.fallback_model} ({fb_prov})", style=COLOR_SUCCESS)
+    else:
+        content.append("Disabled", style=COLOR_WARNING)
 
     panel = Panel(
         content,
@@ -164,8 +175,12 @@ def status_cmd(
         health = await adapter.check_health()
 
         if health.healthy:
-            ui.print_info(f"Model: {config.model.model_name} is AVAILABLE and healthy.")
-            ui.print_info(f"Details: {health.details.get('message', 'Ready')}")
+            if health.details.get("status") == "Operating in Fallback Mode":
+                ui.print_warning(f"Primary model '{config.model.model_name}' is UNAVAILABLE.")
+                ui.print_info(f"Fallback Active: '{health.details.get('active_fallback')}' at {health.details.get('fallback_endpoint')}")
+            else:
+                ui.print_info(f"Model: {config.model.model_name} is AVAILABLE and healthy.")
+                ui.print_info(f"Details: {health.details.get('status') or health.details.get('message', 'Ready')}")
         else:
             ui.print_error(f"Model unreachable: {health.error or 'Connection refused'}")
 
@@ -327,3 +342,58 @@ def test_cmd(
         )
 
     asyncio.run(_run())
+
+
+@models_app.command(name="compare")
+def compare_cmd(
+    plain: bool = typer.Option(False, "--plain", "--no-color", help="Plain text output."),
+    workspace: Optional[str] = typer.Option(None, "--workspace", "-w", help="Workspace root directory."),
+) -> None:
+    """Compare performance, context window, and capability profiles of available models."""
+    ws = Path(workspace or os.getcwd()).resolve()
+    config = CodeMindConfig.load(workspace_dir=ws, overrides={"plain_mode": plain})
+    ui = TerminalUI(plain_mode=config.plain_mode)
+
+    table = Table(
+        title="[bold #FF9E3B]Model Provider Architectural Comparison[/bold #FF9E3B]",
+        show_header=True,
+        header_style="bold cyan",
+        border_style=COLOR_MUTED,
+    )
+    table.add_column("Model / Provider", style="bold white")
+    table.add_column("Type", style="cyan")
+    table.add_column("Context Window", justify="right")
+    table.add_column("Tool Protocol", style="green")
+    table.add_column("Status / Role", style="yellow")
+
+    table.add_row(
+        "codemind\n(codemind-custom)",
+        "Foundation (vLLM/OpenAI-compat)",
+        "32k - 65k",
+        "Native v1 JSON ReAct",
+        "Target Foundation Provider",
+    )
+    table.add_row(
+        "qwen3.6:35b\n(ollama)",
+        "Community Local (Ollama)",
+        "32k - 262k",
+        "Prompted v1 JSON",
+        "Active Baseline Provider",
+    )
+    table.add_row(
+        "mock-model\n(mock)",
+        "In-Memory Deterministic",
+        "65k",
+        "Hermetic v1 JSON",
+        "Offline Test Provider",
+    )
+
+    if config.plain_mode:
+        print("\nModel Provider Comparison:")
+        print(f"{'PROVIDER':<20} {'CONTEXT':<12} {'PROTOCOL':<20} {'ROLE':<25}")
+        print("-" * 77)
+        print(f"{'codemind-custom':<20} {'32k-65k':<12} {'Native v1 JSON':<20} {'Target Foundation Model':<25}")
+        print(f"{'ollama (qwen3.6:35b)':<20} {'32k-262k':<12} {'Prompted v1 JSON':<20} {'Active Baseline Provider':<25}")
+        print(f"{'mock-model':<20} {'65k':<12} {'Hermetic v1 JSON':<20} {'Offline Test Suite':<25}\n")
+    else:
+        ui.console.print(table)

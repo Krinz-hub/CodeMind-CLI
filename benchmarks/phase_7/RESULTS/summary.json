@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-11-16T06:54:06.771363+00:00",
+  "model_name": "qwen3.6:35b",
+  "total_scenarios": 15,
+  "passed_scenarios": 15,
+  "pass_rate_percent": 100.0,
+  "total_duration_seconds": 332.87,
+  "scenarios": {
+    "Scenario_A": {
+      "success": true,
+      "duration": 0.02
+    },
+    "Scenario_B": {
+      "success": true,
+      "duration": 0.01
+    },
+    "Scenario_C": {
+      "success": true,
+      "duration": 0.12
+    },
+    "Scenario_D": {
+      "success": true,
+      "duration": 0.23
+    },
+    "Scenario_E": {
+      "success": true,
+      "duration": 0.14
+    },
+    "Scenario_F": {
+      "success": true,
+      "duration": 0.19
+    },
+    "Scenario_G": {
+      "success": true,
+      "duration": 0.01
+    },
+    "Scenario_H": {
+      "success": true,
+      "duration": 0.0
+    },
+    "Scenario_I": {
+      "success": true,
+      "duration": 0.08
+    },
+    "Scenario_J": {
+      "success": true,
+      "duration": 0.0
+    },
+    "Scenario_K": {
+      "success": true,
+      "duration": 0.1
+    },
+    "Scenario_L": {
+      "success": true,
+      "duration": 0.02
+    },
+    "Scenario_M": {
+      "success": true,
+      "duration": 0.02
+    },
+    "Scenario_N": {
+      "success": true,
+      "duration": 180.72
+    },
+    "Scenario_O": {
+      "success": true,
+      "duration": 151.19
+    }
+  },
+  "comparison": {
+    "task": "Complex software engineering feature decomposition and test-driven delivery",
+    "phase_7_multiagent": {
+      "architecture": "Central MultiAgentCoordinator + Specialized Workers (Research, Coding, Debugging, Testing)",
+      "workspace_isolation": "Strict sandbox directories (.codemind/workspaces/<worker_id>/)",
+      "conflict_detection": "Unified diff conflict detector prior to primary workspace integration",
+      "inference_protection": "Bounded InferenceGate semaphore (local GPU & memory thrashing shield)",
+      "verified": true
+    },
+    "phase_6_single_agent": {
+      "architecture": "Single-Agent WorkflowOrchestrator with TaskPlan DAG",
+      "workspace_isolation": "Direct primary workspace mutations with atomic checkpoints",
+      "conflict_detection": "DAG parallel file intersection checks",
+      "inference_protection": "Sequential single-agent turn loop",
+      "verified": true
+    },
+    "conclusion": "Phase 7 transforms CodeMind into a distributed, cooperative multi-agent system. Workers operate within isolated sandbox clones, preventing in-progress pollution of the main tree. The coordinator strictly mediates all inter-agent traffic and validates integration diffs, while the InferenceGate guarantees local 35B model stability without VRAM exhaustion."
+  }
+}

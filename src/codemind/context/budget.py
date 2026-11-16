@@ -20,6 +20,7 @@ class ContextBudget:
         project_summary: ProjectSummary | None = None,
         active_plan_text: str | None = None,
         skills_text: str | None = None,
+        memory_text: str | None = None,
     ) -> str:
         """Compose bounded structured system prompt."""
         sections = [base_instructions]
@@ -38,6 +39,9 @@ class ContextBudget:
             if project_summary.file_tree_summary:
                 proj_sec += f"\nFile Structure:\n{project_summary.file_tree_summary}\n"
             sections.append(proj_sec)
+
+        if memory_text:
+            sections.append(f"\n--- PERSISTENT PROJECT MEMORY ---\n{memory_text.strip()}\n")
 
         if active_plan_text:
             sections.append(f"\n--- ACTIVE TASK PLAN ---\n{active_plan_text}\n")

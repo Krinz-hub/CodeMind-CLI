@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from codemind.config import CodeMindConfig, ModelProvider, ModelSettings
 from codemind.models.base import ModelAdapter
 from codemind.models.codemind_local import CodeMindLocalAdapter
+from codemind.models.custom import CodeMindCustomAdapter
 from codemind.models.ollama import OllamaAdapter
 
 
@@ -31,6 +32,7 @@ class ModelDiscovery:
     """Probes local endpoints to identify installed models and active providers."""
 
     DEFAULT_PROBE_ENDPOINTS = [
+        {"provider": "codemind-custom", "endpoint": "http://127.0.0.1:8000/v1"},
         {"provider": "ollama", "endpoint": "http://127.0.0.1:11434"},
         {"provider": "openai-local", "endpoint": "http://127.0.0.1:11434/v1"},
         {"provider": "codemind-local", "endpoint": "http://127.0.0.1:8000/v1"},
@@ -99,6 +101,9 @@ class ModelDiscovery:
         """Instantiate adapter and query model catalog."""
         if provider == "ollama":
             adapter = OllamaAdapter(endpoint=endpoint, model_name="")
+            return await adapter.list_models()
+        elif provider == "codemind-custom":
+            adapter = CodeMindCustomAdapter(endpoint=endpoint, model_name="codemind")
             return await adapter.list_models()
         elif provider in ("openai-local", "codemind-local"):
             adapter = CodeMindLocalAdapter(endpoint=endpoint, model_name="")

@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-11-16T05:09:53.201204+00:00",
+  "model_name": "qwen3.6:35b",
+  "total_scenarios": 10,
+  "passed_scenarios": 10,
+  "pass_rate_percent": 100.0,
+  "total_duration_seconds": 56.43,
+  "scenarios": {
+    "Scenario_A": {
+      "success": true,
+      "duration": 13.14
+    },
+    "Scenario_B": {
+      "success": true,
+      "duration": 8.77
+    },
+    "Scenario_C": {
+      "success": true,
+      "duration": 20.39
+    },
+    "Scenario_D": {
+      "success": true,
+      "duration": 0.02
+    },
+    "Scenario_E": {
+      "success": true,
+      "duration": 0.02
+    },
+    "Scenario_F": {
+      "success": true,
+      "duration": 14.02
+    },
+    "Scenario_G": {
+      "success": true,
+      "duration": 0.04
+    },
+    "Scenario_H": {
+      "success": true,
+      "duration": 0.01
+    },
+    "Scenario_I": {
+      "success": true,
+      "duration": 0.02
+    },
+    "Scenario_J": {
+      "success": true,
+      "duration": 0.01
+    }
+  }
+}

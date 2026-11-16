@@ -21,39 +21,61 @@ CodeMind CLI is a local-first, modular autonomous coding agent that provides loc
 
 ---
 
-## Installation
+## One-Command Global Installation
+
+CodeMind includes a zero-configuration global launcher that automatically locates and manages its dedicated virtual environment without requiring manual activation:
 
 ```bash
+# Clone and run one-command installer
 cd "codemind cli"
+./install.sh
+```
+
+Or install via Python packaging:
+```bash
 pip install -e .
 ```
+
+To verify full system, environment, and inference model health:
+```bash
+codemind doctor
+```
+
+For detailed setup instructions, troubleshooting, and self-update commands, see [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
 ---
 
 ## Quickstart
 
-### 1. Interactive Mode
-Launch the CodeMind companion interactive terminal:
+### 1. Interactive Companion Mode
+Launch the CodeMind interactive companion (**Milo**) from **any directory**:
 ```bash
 codemind
 ```
 
-### 2. One-Shot Task
-Run a direct query or task:
+### 2. One-Shot Autonomous Task
+Run a direct engineering task or query from anywhere:
 ```bash
-codemind "Explain the structure and entrypoints of this project"
+codemind "Refactor auth middleware in src/auth.py and author regression tests"
 ```
 
-### 3. Resume Session
+### 3. System & Model Diagnostics
+Run comprehensive environment, dependency, and local model checks:
+```bash
+codemind doctor
+```
+
+### 4. Resume Session
 Continue an interrupted task or revisit past history:
 ```bash
 codemind --resume <session-id>
 ```
 
-### 4. Configuration Check
+### 5. Status & Model Inspection
 Verify local inference connectivity and active workspace permissions:
 ```bash
 codemind status
+codemind models list
 ```
 
 ---
